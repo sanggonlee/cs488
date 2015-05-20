@@ -1,0 +1,19 @@
+Name: Sang kon Lee
+Student Number: 20295897
+User-id: sk5lee
+Assignment: 1
+
+The final executable was compiled on this machine: Graphics lab machine, gl13
+
+How to invoke my program: run ./game488 under cs488/handin/A1/src directory
+
+
+How to use my extra features: No extra features
+
+
+I have created the following data files, which are in the data directory: No data files
+
+
+My program assumes the following: Qt version 5.0.2, OpenGL version 4.2.0, and shader.frag and shader.vert files are in the same directory as game488 executable.
+
+
