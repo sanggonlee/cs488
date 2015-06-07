@@ -18,12 +18,18 @@ public:
 private:
     void createActions();
     void createMenu();
+    
+    Q_SLOT void updateStatusBar(QString msg);
 
     // Each menu itself
     QMenu* m_menu_app;
+    QMenu* m_menu_mode;
 
     std::vector<QAction*> m_menu_actions;
+    std::vector<QAction*> m_menu_mode_actions;
     Viewer* m_viewer;
+    
+    QStatusBar* m_status_bar;
 };
 
 #endif

@@ -5,7 +5,7 @@
 #include <QGLShaderProgram>
 #include <QMatrix4x4>
 #include <QtGlobal>
-// #include "algebra.hpp"
+#include "algebra.hpp"
 
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 1, 0))
 #include <QOpenGLBuffer>
@@ -19,6 +19,15 @@ class Viewer : public QGLWidget {
     Q_OBJECT
 
 public:
+	enum TransformMode {
+		VIEW_ROTATE,
+		VIEW_TRANSLATE,
+		VIEW_PERSPECTIVE,
+		MODEL_ROTATE,
+		MODEL_TRANSLATE,
+		MODEL_SCALE,
+		VIEWPORT
+	};
     Viewer(const QGLFormat& format, QWidget *parent = 0);
     virtual ~Viewer();
     
@@ -38,7 +47,20 @@ public:
 
     // Restore all the transforms and perspective parameters to their
     // original state. Set the viewport to its initial size.
-    void reset_view();
+    Q_SLOT void reset_view();
+    
+    Q_SLOT void setToViewRotate();
+    Q_SLOT void setToViewTranslate();
+    Q_SLOT void setToViewPerspective();
+    
+    Q_SLOT void setToModelRotate();
+    Q_SLOT void setToModelTranslate();
+    Q_SLOT void setToModelScale();
+    
+    Q_SLOT void setToViewport();
+
+signals:
+	void statusChanged(QString msg);
 
 protected:
 
@@ -72,14 +94,39 @@ private:
 #else 
     QGLBuffer mVertexBufferObject;
 #endif
+	void clipAndDraw(QVector2D a, QVector2D b);
+	void updateStatus();
+	void drawModelGnomon();
+	void drawWorldGnomon();
+	void drawCube();
+	
+	Vector4D mModelGnomonVertices[4];
+	Vector4D mWorldGnomonVertices[4];
+    Vector4D mCubeVertices[8];
+    QVector2D mVerticesIn2D[8];
+    
+    Vector3D mEyePoint;
+    
+    TransformMode mMode;
+
+	double mOldX;
+	double mFov, mNear, mFar;
+	double mViewportStartX, mViewportStartY;
+	double mCurrentX, mCurrentY;
+	bool mChangingViewport;
+	double mVpFrameTop, mVpFrameBot, mVpFrameLeft, mVpFrameRight;
 
     QGLShaderProgram mProgram;
 
     int mColorLocation;
     
-    // *** Fill me in ***
-    // You will want to declare some more matrices here
-    QMatrix4x4 m_projection;    
+    Matrix4x4 m_projection;
+    // mModelMatrix only maintains model rotations and translations, not scales
+    Matrix4x4 mModelMatrix;
+    // Maintain a separate matrix for model scale to handle unscaling model gnomon
+    Matrix4x4 mScaleMatrix;
+    Matrix4x4 mViewMatrix;
+    Matrix4x4 mViewportMatrix;
 };
 
 #endif

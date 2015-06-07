@@ -315,6 +315,29 @@ public:
     v_[14] = row4[2]; 
     v_[15] = row4[3]; 
   }
+  
+  Matrix4x4(double e11, double e12, double e13, double e14,
+  			double e21,	double e22,	double e23,	double e24,
+  			double e31,	double e32,	double e33,	double e34,
+  			double e41, double e42, double e43, double e44) {
+  	v_[0] = e11;
+  	v_[1] = e12;
+  	v_[2] = e13;
+  	v_[3] = e14;
+  	v_[4] = e21;
+  	v_[5] = e22;
+  	v_[6] = e23;
+  	v_[7] = e24;
+  	v_[8] = e31;
+  	v_[9] = e32;
+  	v_[10] = e33;
+  	v_[11] = e34;
+  	v_[12] = e41;
+  	v_[13] = e42;
+  	v_[14] = e43;
+  	v_[15] = e44;
+  }
+  
   Matrix4x4(double *vals)
   {
     std::copy(vals, vals + 16, (double*)v_);
@@ -384,6 +407,11 @@ inline Matrix4x4 operator *(const Matrix4x4& a, const Matrix4x4& b)
 
   return ret;
 }
+/*
+inline Matrix4x4 operator *=(Matrix4x4& a, const Matrix4x4& b) {
+	a = b * a;
+	return a;
+}*/
 
 inline Vector3D operator *(const Matrix4x4& M, const Vector3D& v)
 {
@@ -391,6 +419,15 @@ inline Vector3D operator *(const Matrix4x4& M, const Vector3D& v)
                   v[0] * M[0][0] + v[1] * M[0][1] + v[2] * M[0][2],
                   v[0] * M[1][0] + v[1] * M[1][1] + v[2] * M[1][2],
                   v[0] * M[2][0] + v[1] * M[2][1] + v[2] * M[2][2]);
+}
+
+inline Vector4D operator *(const Matrix4x4& M, const Vector4D& v)
+{
+  return Vector4D(
+                  v[0] * M[0][0] + v[1] * M[0][1] + v[2] * M[0][2] + v[3] * M[0][3],
+                  v[0] * M[1][0] + v[1] * M[1][1] + v[2] * M[1][2] + v[3] * M[1][3],
+                  v[0] * M[2][0] + v[1] * M[2][1] + v[2] * M[2][2] + v[3] * M[2][3],
+                  v[0] * M[3][0] + v[1] * M[3][1] + v[2] * M[3][2] + v[3] * M[3][3]);
 }
 
 inline Point3D operator *(const Matrix4x4& M, const Point3D& p)
