@@ -7,6 +7,7 @@
 #include <QAction>
 #include <vector>
 #include "Viewer.hpp"
+#include "scene.hpp"
 
 class AppWindow : public QMainWindow
 {
@@ -14,6 +15,7 @@ class AppWindow : public QMainWindow
 
 public:
     AppWindow();
+    void setRootSceneNode(SceneNode* node);
 
 private:
     void createActions();
@@ -24,6 +26,8 @@ private:
 
     std::vector<QAction*> m_menu_actions;
     Viewer* m_viewer;
+    
+    SceneNode* mRootSceneNode;
 };
 
 #endif

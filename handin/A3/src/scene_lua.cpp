@@ -43,7 +43,7 @@
 #include "lua488.hpp"
 
 // Uncomment the following line to enable debugging messages
-// #define GRLUA_ENABLE_DEBUG
+ #define GRLUA_ENABLE_DEBUG
 
 #ifdef GRLUA_ENABLE_DEBUG
 #  define GRLUA_DEBUG(x) do { std::cerr << x << std::endl; } while (0)

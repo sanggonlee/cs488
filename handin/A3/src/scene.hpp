@@ -2,9 +2,12 @@
 #define SCENE_HPP
 
 #include <list>
+#include <QMatrix4x4>
 #include "algebra.hpp"
 #include "primitive.hpp"
 #include "material.hpp"
+#include "Viewer.hpp"
+#include <QMutex>
 
 class SceneNode {
 public:
@@ -13,16 +16,16 @@ public:
 
   virtual void walk_gl(bool picking = false) const;
 
-  const Matrix4x4& get_transform() const { return m_trans; }
-  const Matrix4x4& get_inverse() const { return m_invtrans; }
+  const QMatrix4x4& get_transform() const { return m_trans; }
+  const QMatrix4x4& get_inverse() const { return m_invtrans; }
   
-  void set_transform(const Matrix4x4& m)
+  void set_transform(const QMatrix4x4& m)
   {
     m_trans = m;
-    m_invtrans = m.invert();
+    m_invtrans = m.inverted();
   }
 
-  void set_transform(const Matrix4x4& m, const Matrix4x4& i)
+  void set_transform(const QMatrix4x4& m, const QMatrix4x4& i)
   {
     m_trans = m;
     m_invtrans = i;
@@ -30,6 +33,7 @@ public:
 
   void add_child(SceneNode* child)
   {
+  	std::cout << "[scene::add_child] adding a child" << std::endl;
     m_children.push_back(child);
   }
 
@@ -47,6 +51,13 @@ public:
   // Returns true if and only if this node is a JointNode
   virtual bool is_joint() const;
   
+  void setViewer(Viewer* viewer) {
+  	mViewer = viewer;
+  	for (ChildList::const_iterator it=m_children.begin(); it != m_children.end(); ++it) {
+  		(*it)->setViewer(viewer);
+  	}
+  }
+  
 protected:
   
   // Useful for picking
@@ -54,12 +65,15 @@ protected:
   std::string m_name;
 
   // Transformations
-  Matrix4x4 m_trans;
-  Matrix4x4 m_invtrans;
+  QMatrix4x4 m_trans;
+  QMatrix4x4 m_invtrans;
 
   // Hierarchy
   typedef std::list<SceneNode*> ChildList;
   ChildList m_children;
+  
+  Viewer* mViewer;
+  QMutex mutex;
 };
 
 class JointNode : public SceneNode {
@@ -98,6 +112,13 @@ public:
   void set_material(Material* material)
   {
     m_material = material;
+  }
+  void setViewer(Viewer* viewer) {
+  	mViewer = viewer;
+  	for (ChildList::const_iterator it=m_children.begin(); it != m_children.end(); ++it) {
+  		(*it)->setViewer(viewer);
+  	}
+  	//m_primitive->setViewer(viewer);
   }
 
 protected:

@@ -5,6 +5,7 @@
 #include <QGLShaderProgram>
 #include <QMatrix4x4>
 #include <QtGlobal>
+#include <stack>
 
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 1, 0))
 #include <QOpenGLBuffer>
@@ -27,6 +28,11 @@ public:
     // If you want to render a new frame, call do not call paintGL(),
     // instead, call update() to ensure that the view gets a paint 
     // event.
+    void drawSphere(QMatrix4x4 transform);
+    void transformModel(QMatrix4x4 mat);
+    void pushMatrix(QMatrix4x4 matrix);
+    void popMatrix();
+    void addTransform(QMatrix4x4 transform);
   
 protected:
 
@@ -48,20 +54,25 @@ protected:
     // Draw a circle for the trackball, with OpenGL commands.
     // Assumes the context for the viewer is active.
     void draw_trackball_circle();
+    
+    //void drawSphere();
+
 
 private:
 
     QMatrix4x4 getCameraMatrix();
     void translateWorld(float x, float y, float z);
-    void rotateWorld(float x, float y, float z);
+    void rotateWorld(float angle, float x, float y, float z);
     void scaleWorld(float x, float y, float z);
     void set_colour(const QColor& col);
 
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 1, 0))
     QOpenGLBuffer mCircleBufferObject;
+    QOpenGLBuffer mSphereBufferObject;
     QOpenGLVertexArrayObject mVertexArrayObject;
 #else 
     QGLBuffer mCircleBufferObject;
+    QGLBuffer mSphereBufferObject;
 #endif
     
     int mMvpMatrixLocation;
@@ -70,6 +81,9 @@ private:
     QMatrix4x4 mPerspMatrix;
     QMatrix4x4 mTransformMatrix;
     QGLShaderProgram mProgram;
+    
+    std::stack<QMatrix4x4> mMatrixStack;
+    std::vector<QMatrix4x4> mTransforms;
 };
 
 #endif

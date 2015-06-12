@@ -44,3 +44,8 @@ void AppWindow::createMenu() {
     }
 }
 
+void AppWindow::setRootSceneNode(SceneNode* node) {
+	mRootSceneNode = node;
+	mRootSceneNode->setViewer(m_viewer);
+	mRootSceneNode->walk_gl(false);
+}

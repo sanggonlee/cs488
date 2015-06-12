@@ -3,6 +3,7 @@
 #include "Viewer.hpp"
 #include <iostream>
 #include <math.h>
+#include <GL/glut.h>
 
 
 #ifndef GL_MULTISAMPLE
@@ -13,12 +14,14 @@ Viewer::Viewer(const QGLFormat& format, QWidget *parent)
     : QGLWidget(format, parent) 
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 1, 0))
     , mCircleBufferObject(QOpenGLBuffer::VertexBuffer)
+    , mSphereBufferObject(QOpenGLBuffer::VertexBuffer)
     , mVertexArrayObject(this)
 #else 
     , mCircleBufferObject(QGLBuffer::VertexBuffer)
+    , mSphereBufferObject(QGLBuffer::VertexBuffer)
 #endif
 {
-
+	mMatrixStack.push(QMatrix4x4());
 }
 
 Viewer::~Viewer() {
@@ -34,6 +37,7 @@ QSize Viewer::sizeHint() const {
 }
 
 void Viewer::initializeGL() {
+
     QGLFormat glFormat = QGLWidget::format();
     if (!glFormat.sampleBuffers()) {
         std::cerr << "Could not enable sample buffers." << std::endl;
@@ -41,7 +45,7 @@ void Viewer::initializeGL() {
     }
 
     glShadeModel(GL_SMOOTH);
-    glClearColor( 0.4, 0.4, 0.4, 0.0 );
+    glClearColor( 0.7, 0.7, 1.0, 0.0 );
     glEnable(GL_DEPTH_TEST);
     
     if (!mProgram.addShaderFromSourceFile(QGLShader::Vertex, "shader.vert")) {
@@ -75,14 +79,18 @@ void Viewer::initializeGL() {
     mVertexArrayObject.create();
     mVertexArrayObject.bind();
 
-    mCircleBufferObject.create();
-    mCircleBufferObject.setUsagePattern(QOpenGLBuffer::StaticDraw);
+//    mCircleBufferObject.create();
+//    mCircleBufferObject.setUsagePattern(QOpenGLBuffer::StaticDraw);
+    
+    mSphereBufferObject.create();
+    mSphereBufferObject.setUsagePattern(QOpenGLBuffer::StaticDraw);
 #else 
     /*
      * if qt version is less than 5.1, use the following commented code
      * instead of QOpenGLVertexVufferObject. Also use QGLBuffer instead of 
      * QOpenGLBuffer.
      */
+
     uint vao;
      
     typedef void (APIENTRY *_glGenVertexArrays) (GLsizei, GLuint*);
@@ -97,27 +105,82 @@ void Viewer::initializeGL() {
     glGenVertexArrays(1, &vao);
     glBindVertexArray(vao);    
 
-    mCircleBufferObject.create();
-    mCircleBufferObject.setUsagePattern(QGLBuffer::StaticDraw);
+//    mCircleBufferObject.create();
+//    mCircleBufferObject.setUsagePattern(QGLBuffer::StaticDraw);
+    
+    mSphereBufferObject.create();
+    mSphereBufferObject.setUsagePattern(QGLBuffer::StaticDraw);
 #endif
-
+/*
     if (!mCircleBufferObject.bind()) {
         std::cerr << "could not bind vertex buffer to the context." << std::endl;
         return;
     }
+*/  
+    if (!mSphereBufferObject.bind()) {
+    	std::cerr << "could not bind vertex buffer for sphere to the context." << std::endl;
+    }
 
-    mCircleBufferObject.allocate(circleData, 40 * 3 * sizeof(float));
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+	float theta = 0, phi = 0, deltaTheta = M_PI / 9, deltaPhi = M_PI / 9;
+	//float z1, x1, y1, z2, x2, y2, z3, x3, y3, z4, x4, y4;
+	float r = 1.0;
+	int slice = 19, sec = 9;
+
+	float sphereData[slice*sec*6*3];
+	int i=0;
+	for (theta = 0; theta <= 2*M_PI; theta += M_PI/9) {
+		for (phi = 0; phi <= M_PI-0.001; phi += M_PI/9) {
+			sphereData[i++] = r*sin(theta)*cos(phi);
+			sphereData[i++] = r*sin(theta)*sin(phi);
+			sphereData[i++] = r*cos(theta);
+			
+			sphereData[i++] = r*sin(theta + deltaTheta)*cos(phi);
+			sphereData[i++] = r*sin(theta + deltaTheta)*sin(phi);
+			sphereData[i++] = r*cos(theta + deltaTheta);
+			
+			sphereData[i++] = r*sin(theta)*cos(phi + deltaPhi);
+			sphereData[i++] = r*sin(theta)*sin(phi + deltaPhi);
+			sphereData[i++] = r*cos(theta);
+			
+			
+			sphereData[i++] = r*sin(theta + deltaTheta)*cos(phi + deltaPhi);
+			sphereData[i++] = r*sin(theta + deltaTheta)*sin(phi + deltaPhi);
+			sphereData[i++] = r*cos(theta + deltaTheta);
+			
+			sphereData[i++] = r*sin(theta + deltaTheta)*cos(phi);
+			sphereData[i++] = r*sin(theta + deltaTheta)*sin(phi);
+			sphereData[i++] = r*cos(theta + deltaTheta);
+			
+			sphereData[i++] = r*sin(theta)*cos(phi + deltaPhi);
+			sphereData[i++] = r*sin(theta)*sin(phi + deltaPhi);
+			sphereData[i++] = r*cos(theta);
+		}
+	}
+	mSphereBufferObject.allocate(sphereData, 
+								slice*sec*6*3
+								* sizeof(float));
+ 
+    
+//    mCircleBufferObject.allocate(circleData, 40 * 3 * sizeof(float));
 
     mProgram.bind();
 
     mProgram.enableAttributeArray("vert");
     mProgram.setAttributeBuffer("vert", GL_FLOAT, 0, 3);
 
+    // set color buffer
+    mProgram.enableAttributeArray("color");
+    mProgram.setAttributeBuffer("color", GL_FLOAT, 0, 1);
+
     mMvpMatrixLocation = mProgram.uniformLocation("mvpMatrix");
     mColorLocation = mProgram.uniformLocation("frag_color");
 }
 
+
 void Viewer::paintGL() {
+	qDebug() << "[Viewer::paintGL] enter, transformMatrix="<<mTransformMatrix;
     // Clear framebuffer
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -125,11 +188,17 @@ void Viewer::paintGL() {
 
     // Draw stuff
 
-    draw_trackball_circle();
+//    draw_trackball_circle();
 
+	for (std::vector<QMatrix4x4>::iterator it=mTransforms.begin(); it != mTransforms.end(); ++it) {
+		mProgram.setUniformValue(mMvpMatrixLocation, getCameraMatrix() * (*it));
+		set_colour(QColor(0.0, 0.0, 1.0));
+		glDrawArrays(GL_TRIANGLE_STRIP, 0, 19*9*6);
+	}
 }
 
 void Viewer::resizeGL(int width, int height) {
+
     if (height == 0) {
         height = 1;
     }
@@ -150,6 +219,14 @@ void Viewer::mouseReleaseEvent ( QMouseEvent * event ) {
 
 void Viewer::mouseMoveEvent ( QMouseEvent * event ) {
     std::cerr << "Stub: Motion at " << event->x() << ", " << event->y() << std::endl;
+    if (event->buttons() & Qt::LeftButton) {
+		//rotateWorld(0, 0, 2);
+		//translateWorld(0.1,0.1,0.1);
+		rotateWorld(2, 1, 0, 0);
+	} else if ( event->buttons() & Qt::RightButton) {
+		scaleWorld(1.1, 1.1, 1.1);
+	}
+	update();
 }
 
 QMatrix4x4 Viewer::getCameraMatrix() {
@@ -157,7 +234,7 @@ QMatrix4x4 Viewer::getCameraMatrix() {
     QMatrix4x4 vMatrix;
 
     QMatrix4x4 cameraTransformation;
-    QVector3D cameraPosition = cameraTransformation * QVector3D(0, 0, 20.0);
+    QVector3D cameraPosition = cameraTransformation * QVector3D(0.0, 0.0, 20.0);
     QVector3D cameraUpDirection = cameraTransformation * QVector3D(0, 1, 0);
 
     vMatrix.lookAt(cameraPosition, QVector3D(0, 0, 0), cameraUpDirection);
@@ -170,9 +247,9 @@ void Viewer::translateWorld(float x, float y, float z) {
     mTransformMatrix.translate(x, y, z);
 }
 
-void Viewer::rotateWorld(float x, float y, float z) {
+void Viewer::rotateWorld(float angle, float x, float y, float z) {
     // Todo: Ask if we want to keep this.
-    mTransformMatrix.rotate(x, y, z);
+    mTransformMatrix.rotate(angle, x, y, z);
 }
 
 void Viewer::scaleWorld(float x, float y, float z) {
@@ -189,6 +266,7 @@ void Viewer::draw_trackball_circle()
 {
     int current_width = width();
     int current_height = height();
+    std::cout << "w:"<<width()<<", h:"<<height()<<std::endl;
 
     // Set up for orthogonal drawing to draw a circle on screen.
     // You'll want to make the rest of the function conditional on
@@ -211,4 +289,36 @@ void Viewer::draw_trackball_circle()
 
     // Draw buffer
     glDrawArrays(GL_LINE_LOOP, 0, 40);    
+}
+
+
+void Viewer::pushMatrix(QMatrix4x4 matrix) {
+	mMatrixStack.push(mMatrixStack.top() * matrix);
+}
+
+void Viewer::popMatrix() {
+	mMatrixStack.pop();
+}
+/*
+QMatrix4x4 topMatrix() {
+	return mMatrixStack.top();
+}*/
+
+void Viewer::transformModel(QMatrix4x4 mat) {
+	mTransformMatrix = mTransformMatrix * mat;
+}
+
+void Viewer::drawSphere(QMatrix4x4 transform) {
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	mProgram.setUniformValue(mMvpMatrixLocation, getCameraMatrix() * transform);
+	
+	//mProgram.setUniformValue(mColorLocation, QColor(Qt::blue));
+	set_colour(QColor(0.0, 0.0, 1.0));
+	
+	//glDrawArrays(GL_TRIANGLE_STRIP, 0, 18*9*6);
+	glDrawArrays(GL_TRIANGLE_STRIP, 0, 19*9*6);
+}
+
+void Viewer::addTransform(QMatrix4x4 transform) {
+	mTransforms.push_back(transform);
 }
