@@ -1,5 +1,6 @@
 #include "scene.hpp"
 #include <iostream>
+#include "ObjectAttribute.hpp"
 
 SceneNode::SceneNode(const std::string& name)
   : m_name(name)
@@ -130,11 +131,10 @@ void GeometryNode::walk_gl(bool picking) const
 	
 	if (m_primitive) {
 		std::cout << "[GeometryNode::walk_gl] drawing a primitive" << std::endl;
-		//mViewer->transformModel(m_trans);
-	//mViewer->drawSphere(m_trans);
-		//mViewer->update();
-		//mViewer->transformModel(m_invtrans);
-		mViewer->addTransform(m_trans);
+		
+	//	mViewer->addTransform(m_trans);
+		
+		mViewer->addObject(ObjectAttribute(m_trans, m_material));
 	}
 	mViewer->popMatrix();
 }

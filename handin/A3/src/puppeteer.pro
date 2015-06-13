@@ -18,7 +18,8 @@ HEADERS += algebra.hpp \
            scene.hpp \
            scene_lua.hpp \
            AppWindow.hpp \
-           Viewer.hpp
+           Viewer.hpp \
+           ObjectAttribute.hpp
 SOURCES += algebra.cpp \
            main.cpp \
            material.cpp \

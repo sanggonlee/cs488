@@ -1,0 +1,53 @@
+material.cpp: In member function ‘virtual void PhongMaterial::apply_gl(QGLShaderProgram*) const’:
+material.cpp:22:22: warning: value computed is not used [-Wunused-value]
+      QColor((m_kd.R()*255, m_kd.G()*255, m_kd.B()*255));
+                      ^
+material.cpp:22:36: warning: value computed is not used [-Wunused-value]
+      QColor((m_kd.R()*255, m_kd.G()*255, m_kd.B()*255));
+                                    ^
+material.cpp:22:56: error: expected ‘)’ before ‘;’ token
+      QColor((m_kd.R()*255, m_kd.G()*255, m_kd.B()*255));
+                                                        ^
+material.cpp:25:51: error: call of overloaded ‘setUniformValue(const char [10], const double&)’ is ambiguous
+  program->setUniformValue("shininess", m_shininess);
+                                                   ^
+material.cpp:25:51: note: candidates are:
+In file included from /usr/include/qt5/QtOpenGL/QGLShaderProgram:1:0,
+                 from material.hpp:4,
+                 from material.cpp:1:
+/usr/include/qt5/QtOpenGL/qglshaderprogram.h:203:10: note: void QGLShaderProgram::setUniformValue(int, GLfloat) <near match>
+     void setUniformValue(int location, GLfloat value);
+          ^
+/usr/include/qt5/QtOpenGL/qglshaderprogram.h:203:10: note:   no known conversion for argument 1 from ‘const char [10]’ to ‘int’
+/usr/include/qt5/QtOpenGL/qglshaderprogram.h:204:10: note: void QGLShaderProgram::setUniformValue(int, GLint) <near match>
+     void setUniformValue(int location, GLint value);
+          ^
+/usr/include/qt5/QtOpenGL/qglshaderprogram.h:204:10: note:   no known conversion for argument 1 from ‘const char [10]’ to ‘int’
+/usr/include/qt5/QtOpenGL/qglshaderprogram.h:205:10: note: void QGLShaderProgram::setUniformValue(int, GLuint) <near match>
+     void setUniformValue(int location, GLuint value);
+          ^
+/usr/include/qt5/QtOpenGL/qglshaderprogram.h:205:10: note:   no known conversion for argument 1 from ‘const char [10]’ to ‘int’
+/usr/include/qt5/QtOpenGL/qglshaderprogram.h:212:10: note: void QGLShaderProgram::setUniformValue(int, const QColor&) <near match>
+     void setUniformValue(int location, const QColor& color);
+          ^
+/usr/include/qt5/QtOpenGL/qglshaderprogram.h:212:10: note:   no known conversion for argument 1 from ‘const char [10]’ to ‘int’
+/usr/include/qt5/QtOpenGL/qglshaderprogram.h:229:10: note: void QGLShaderProgram::setUniformValue(int, const QTransform&) <near match>
+     void setUniformValue(int location, const QTransform& value);
+          ^
+/usr/include/qt5/QtOpenGL/qglshaderprogram.h:229:10: note:   no known conversion for argument 1 from ‘const char [10]’ to ‘int’
+/usr/include/qt5/QtOpenGL/qglshaderprogram.h:231:10: note: void QGLShaderProgram::setUniformValue(const char*, GLfloat)
+     void setUniformValue(const char *name, GLfloat value);
+          ^
+/usr/include/qt5/QtOpenGL/qglshaderprogram.h:232:10: note: void QGLShaderProgram::setUniformValue(const char*, GLint)
+     void setUniformValue(const char *name, GLint value);
+          ^
+/usr/include/qt5/QtOpenGL/qglshaderprogram.h:233:10: note: void QGLShaderProgram::setUniformValue(const char*, GLuint)
+     void setUniformValue(const char *name, GLuint value);
+          ^
+/usr/include/qt5/QtOpenGL/qglshaderprogram.h:240:10: note: void QGLShaderProgram::setUniformValue(const char*, const QColor&)
+     void setUniformValue(const char *name, const QColor& color);
+          ^
+/usr/include/qt5/QtOpenGL/qglshaderprogram.h:257:10: note: void QGLShaderProgram::setUniformValue(const char*, const QTransform&)
+     void setUniformValue(const char *name, const QTransform& value);
+          ^
+make: *** [material.o] Error 1

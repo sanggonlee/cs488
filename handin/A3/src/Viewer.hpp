@@ -6,6 +6,8 @@
 #include <QMatrix4x4>
 #include <QtGlobal>
 #include <stack>
+#include "material.hpp"
+#include "ObjectAttribute.hpp"
 
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 1, 0))
 #include <QOpenGLBuffer>
@@ -20,8 +22,15 @@ class Viewer : public QGLWidget {
 
 public:
     Viewer(const QGLFormat& format, QWidget *parent = 0);
-    virtual ~Viewer();
-    
+    virtual ~Viewer();/*
+    struct ObjectAttribute {
+    	QMatrix4x4 transform;
+    	Material *material;
+    	
+    	ObjectAttribute(QMatrix4x4 t, Material *m):
+    		transform(t)
+    	,	material(m){}
+    };*/
     QSize minimumSizeHint() const;
     QSize sizeHint() const;
 
@@ -33,6 +42,7 @@ public:
     void pushMatrix(QMatrix4x4 matrix);
     void popMatrix();
     void addTransform(QMatrix4x4 transform);
+    void addObject(ObjectAttribute object);
   
 protected:
 
@@ -69,21 +79,29 @@ private:
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 1, 0))
     QOpenGLBuffer mCircleBufferObject;
     QOpenGLBuffer mSphereBufferObject;
+    QOpenGLBuffer mSphereNormalBufferObject;
     QOpenGLVertexArrayObject mVertexArrayObject;
 #else 
     QGLBuffer mCircleBufferObject;
     QGLBuffer mSphereBufferObject;
+    QGLBuffer mSphereNormalBufferObject;
 #endif
     
     int mMvpMatrixLocation;
     int mColorLocation;
+    
+    int mVmMatrixLocation;
+    int m3x3InvTranspLocation;
 
     QMatrix4x4 mPerspMatrix;
     QMatrix4x4 mTransformMatrix;
+    QMatrix4x4 mViewMatrix;
     QGLShaderProgram mProgram;
     
     std::stack<QMatrix4x4> mMatrixStack;
+
     std::vector<QMatrix4x4> mTransforms;
+    std::vector<ObjectAttribute> mObjects;
 };
 
 #endif

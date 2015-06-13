@@ -84,6 +84,8 @@ void Viewer::initializeGL() {
     
     mSphereBufferObject.create();
     mSphereBufferObject.setUsagePattern(QOpenGLBuffer::StaticDraw);
+    
+    mSphereNormalBufferObject.create();
 #else 
     /*
      * if qt version is less than 5.1, use the following commented code
@@ -110,6 +112,8 @@ void Viewer::initializeGL() {
     
     mSphereBufferObject.create();
     mSphereBufferObject.setUsagePattern(QGLBuffer::StaticDraw);
+    
+    mSphereNormalBufferObject.create();
 #endif
 /*
     if (!mCircleBufferObject.bind()) {
@@ -120,8 +124,12 @@ void Viewer::initializeGL() {
     if (!mSphereBufferObject.bind()) {
     	std::cerr << "could not bind vertex buffer for sphere to the context." << std::endl;
     }
-
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    
+    if (!mSphereNormalBufferObject.bind()) {
+    	std::cerr << "could not bind buffer for sphere normal to the context." << std::endl;
+    }
+    
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 	float theta = 0, phi = 0, deltaTheta = M_PI / 9, deltaPhi = M_PI / 9;
 	//float z1, x1, y1, z2, x2, y2, z3, x3, y3, z4, x4, y4;
@@ -161,7 +169,13 @@ void Viewer::initializeGL() {
 	mSphereBufferObject.allocate(sphereData, 
 								slice*sec*6*3
 								* sizeof(float));
+								
+	float sphereNormalData[slice*sec*6*3];
+	for (int j=0; j<slice*sec*6*3; j++) {
+		sphereNormalData[j] = sphereData[j]; // since normal = position - origin; origin is 0
+	}
  
+    mSphereNormalBufferObject.allocate(sphereNormalData, slice*sec*6*3*sizeof(float));
     
 //    mCircleBufferObject.allocate(circleData, 40 * 3 * sizeof(float));
 
@@ -169,6 +183,9 @@ void Viewer::initializeGL() {
 
     mProgram.enableAttributeArray("vert");
     mProgram.setAttributeBuffer("vert", GL_FLOAT, 0, 3);
+    
+    mProgram.enableAttributeArray("normal");
+    mProgram.setAttributeBuffer("normal", GL_FLOAT, 0, 3);
 
     // set color buffer
     mProgram.enableAttributeArray("color");
@@ -176,23 +193,52 @@ void Viewer::initializeGL() {
 
     mMvpMatrixLocation = mProgram.uniformLocation("mvpMatrix");
     mColorLocation = mProgram.uniformLocation("frag_color");
+    
+	
+    
 }
 
 
 void Viewer::paintGL() {
-	qDebug() << "[Viewer::paintGL] enter, transformMatrix="<<mTransformMatrix;
-    // Clear framebuffer
+	// Clear framebuffer
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // Set up lighting
+    
+    //QMatrix3x3 normalMatrix = (mViewMatrix*mTransformMatrix).normalMatrix();
+    
+    QMatrix4x4 lightTransformation;
+    float lightAngle = M_PI/2;
+    lightTransformation.rotate(lightAngle, 0, 1, 0);
+    QVector3D lightPosition = lightTransformation * QVector3D(0, 1, 1);
+    mProgram.setUniformValue("lightPosition", mViewMatrix * lightPosition);
+    
+//    mProgram.setUniformValue("ambientColor", QColor(32, 32, 32));
+//    mProgram.setUniformValue("diffuseColor", QColor(128, 128, 128));
+//    mProgram.setUniformValue("specularColor", QColor(255, 255, 255));
+    mProgram.setUniformValue("ambientReflection", (GLfloat)1.0);
+    mProgram.setUniformValue("diffuseReflection", (GLfloat)1.0);
+    mProgram.setUniformValue("specularReflection", (GLfloat)1.0);
+//    mProgram.setUniformValue("shininess", (GLfloat)10.0);
 
     // Draw stuff
 
 //    draw_trackball_circle();
 
-	for (std::vector<QMatrix4x4>::iterator it=mTransforms.begin(); it != mTransforms.end(); ++it) {
-		mProgram.setUniformValue(mMvpMatrixLocation, getCameraMatrix() * (*it));
-		set_colour(QColor(0.0, 0.0, 1.0));
+	for (std::vector<ObjectAttribute>::iterator it=mObjects.begin(); it != mObjects.end(); ++it) {
+		mProgram.setUniformValue(mMvpMatrixLocation, getCameraMatrix() * it->getTransform());
+		//(it->getMaterial())->apply_gl(mProgram);
+		it->setLighting(&mProgram);
+		//mProgram.setUniformValue("ambientColor", QColor(it->
+		
+		QMatrix4x4 mvMatrix = mViewMatrix * mTransformMatrix * it->getTransform();
+		mProgram.setUniformValue("mvMatrix", mvMatrix);
+		
+		QMatrix3x3 normalMatrix = mvMatrix.normalMatrix();
+		mProgram.setUniformValue("normalMatrix", normalMatrix);
+		
+		
+		//set_colour(QColor(0.0, 0.0, 1.0));
 		glDrawArrays(GL_TRIANGLE_STRIP, 0, 19*9*6);
 	}
 }
@@ -238,6 +284,7 @@ QMatrix4x4 Viewer::getCameraMatrix() {
     QVector3D cameraUpDirection = cameraTransformation * QVector3D(0, 1, 0);
 
     vMatrix.lookAt(cameraPosition, QVector3D(0, 0, 0), cameraUpDirection);
+    mViewMatrix = vMatrix;
 
     return mPerspMatrix * vMatrix * mTransformMatrix;
 }
@@ -321,4 +368,8 @@ void Viewer::drawSphere(QMatrix4x4 transform) {
 
 void Viewer::addTransform(QMatrix4x4 transform) {
 	mTransforms.push_back(transform);
+}
+
+void Viewer::addObject(ObjectAttribute object) {
+	mObjects.push_back(object);
 }
