@@ -207,6 +207,10 @@ inline Point3D operator -(const Point3D& a, const Vector3D& b)
   return Point3D(a[0]-b[0], a[1]-b[1], a[2]-b[2]);
 }
 
+inline Vector3D operator -(const Vector3D& a, const Point3D& b) {
+	return Vector3D(a[0]-b[0], a[1]-b[1], a[2]-b[2]);
+}
+
 inline Vector3D cross(const Vector3D& a, const Vector3D& b) 
 {
   return a.cross(b);
@@ -347,6 +351,9 @@ public:
   double *operator[](size_t row) 
   {
     return getRow(row);
+  }
+  void assign(size_t index, double value) {
+  	v_[index] = value;
   }
 
   Matrix4x4 transpose() const

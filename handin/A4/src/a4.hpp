@@ -6,6 +6,8 @@
 #include "scene.hpp"
 #include "light.hpp"
 
+extern bool useMirrorEffect;
+
 void a4_render(// What to render
                SceneNode* root,
                // Where to output the image
@@ -19,5 +21,8 @@ void a4_render(// What to render
                const Colour& ambient,
                const std::list<Light*>& lights
                );
+
+//Colour raytrace(Ray r, SceneNode* node, int depth);
+Colour raytrace(Ray r, std::set<Primitive*> objects, const std::list<Light*>& lights, const Colour &ambient, bool &hit, int depth);
 
 #endif

@@ -15,22 +15,15 @@
 #else 
 #include <QGLBuffer>
 #endif
-
+class ObjectAttribute;
 class Viewer : public QGLWidget {
     
     Q_OBJECT
 
 public:
     Viewer(const QGLFormat& format, QWidget *parent = 0);
-    virtual ~Viewer();/*
-    struct ObjectAttribute {
-    	QMatrix4x4 transform;
-    	Material *material;
-    	
-    	ObjectAttribute(QMatrix4x4 t, Material *m):
-    		transform(t)
-    	,	material(m){}
-    };*/
+    virtual ~Viewer();
+
     QSize minimumSizeHint() const;
     QSize sizeHint() const;
 
@@ -43,6 +36,21 @@ public:
     void popMatrix();
     void addTransform(QMatrix4x4 transform);
     void addObject(ObjectAttribute object);
+    //void setRootSceneNode(SceneNode* sceneNode);
+    Q_SLOT void resetPosition();
+    Q_SLOT void resetOrientation();
+    Q_SLOT void resetAll();
+    Q_SLOT void setToPositionOrientation();
+   	Q_SLOT void setToJoints();
+   	Q_SLOT void undo();
+   	Q_SLOT void redo();
+	Q_SLOT void setToCircle();
+	Q_SLOT void setToZBuffer();
+	Q_SLOT void setToBackfaceCull();
+	Q_SLOT void setToFrontfaceCull();
+
+signals:
+	void requestRewalk();
   
 protected:
 
@@ -86,8 +94,10 @@ private:
     QGLBuffer mSphereBufferObject;
     QGLBuffer mSphereNormalBufferObject;
 #endif
+	//SceneNode* mRootSceneNode;
     
     int mMvpMatrixLocation;
+    int mShadingOrNotLocation;
     int mColorLocation;
     
     int mVmMatrixLocation;
@@ -95,13 +105,34 @@ private:
 
     QMatrix4x4 mPerspMatrix;
     QMatrix4x4 mTransformMatrix;
+    QMatrix4x4 mModelTranslateMatrix;
+    QMatrix4x4 mModelRotateMatrix;
     QMatrix4x4 mViewMatrix;
+    
+    QMatrix4x4 mCurrentTranslateMatrix;
+    std::vector<QMatrix4x4> mTranslateStack;
+    QMatrix4x4 mCurrentRotateMatrix;
+    std::vector<QMatrix4x4> mRotateStack;
+    std::vector<char> mOrderStack; // 't' or 'r'
+    
     QGLShaderProgram mProgram;
     
     std::stack<QMatrix4x4> mMatrixStack;
 
     std::vector<QMatrix4x4> mTransforms;
     std::vector<ObjectAttribute> mObjects;
+    std::vector<ObjectAttribute> mPickedObjects;
+    
+    bool mPicking;
+    
+    int mLastX, mLastY;
+    
+    char mMode;
+    
+    bool mShowCircle;
+    bool mZBuffer;
+    bool mBackfaceCulling;
+    bool mFrontfaceCulling;
 };
 
 #endif

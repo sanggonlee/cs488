@@ -9,38 +9,42 @@
 #include "Viewer.hpp"
 #include <QMutex>
 
+class Viewer;
+class ObjectAttribute;
 class SceneNode {
 public:
   SceneNode(const std::string& name);
   virtual ~SceneNode();
 
-  virtual void walk_gl(bool picking = false) const;
+  Q_SLOT virtual void walk_gl(bool picking = false);
 
-  const QMatrix4x4& get_transform() const { return m_trans; }
-  const QMatrix4x4& get_inverse() const { return m_invtrans; }
+  const QMatrix4x4& get_transform() const;
+  const QMatrix4x4& get_inverse() const;
   
-  void set_transform(const QMatrix4x4& m)
-  {
-    m_trans = m;
-    m_invtrans = m.inverted();
-  }
+  void set_transform(const QMatrix4x4& m);
+  void set_transform(const QMatrix4x4& m, const QMatrix4x4& i);
+  QMatrix4x4 get_transform();
+  
+  void setJointTransform(QMatrix4x4 j);
+  QMatrix4x4 getJointTransform();
+  
+  void rotateJoint(float angle, int x, int y, int z, int depth);
+  
+  void setAccJointTransform(QMatrix4x4 j);
+  QMatrix4x4 getAccJointTransform();
+  
+  void set_rotate_translate(QMatrix4x4 m);
+  QMatrix4x4 get_rotate_translate();
+  
+  QMatrix4x4 get_translate();
+  
+  QVector3D get_rotate_origin();
 
-  void set_transform(const QMatrix4x4& m, const QMatrix4x4& i)
-  {
-    m_trans = m;
-    m_invtrans = i;
-  }
+  void add_child(SceneNode* child);
 
-  void add_child(SceneNode* child)
-  {
-  	std::cout << "[scene::add_child] adding a child" << std::endl;
-    m_children.push_back(child);
-  }
-
-  void remove_child(SceneNode* child)
-  {
-    m_children.remove(child);
-  }
+  void remove_child(SceneNode* child);
+  
+  void setSelectable(bool selectable);
 
   // Callbacks to be implemented.
   // These will be called from Lua.
@@ -51,12 +55,7 @@ public:
   // Returns true if and only if this node is a JointNode
   virtual bool is_joint() const;
   
-  void setViewer(Viewer* viewer) {
-  	mViewer = viewer;
-  	for (ChildList::const_iterator it=m_children.begin(); it != m_children.end(); ++it) {
-  		(*it)->setViewer(viewer);
-  	}
-  }
+  void setViewer(Viewer* viewer);
   
 protected:
   
@@ -67,13 +66,21 @@ protected:
   // Transformations
   QMatrix4x4 m_trans;
   QMatrix4x4 m_invtrans;
+  QMatrix4x4 mJointTransform;
+  QMatrix4x4 mAccJointTransform;
+  
+  QMatrix4x4 m_rotate_translate;
+  QMatrix4x4 m_scale;
+  QMatrix4x4 m_translate;
+  QVector3D m_rotate_origin;
 
   // Hierarchy
   typedef std::list<SceneNode*> ChildList;
   ChildList m_children;
   
   Viewer* mViewer;
-  QMutex mutex;
+  
+  bool mSelectable;
 };
 
 class JointNode : public SceneNode {
@@ -81,7 +88,7 @@ public:
   JointNode(const std::string& name);
   virtual ~JointNode();
 
-  virtual void walk_gl(bool bicking = false) const;
+  virtual void walk_gl(bool bicking = false);
 
   virtual bool is_joint() const;
 
@@ -104,22 +111,15 @@ public:
                Primitive* primitive);
   virtual ~GeometryNode();
 
-  virtual void walk_gl(bool picking = false) const;
+  virtual void walk_gl(bool picking = false);
 
   const Material* get_material() const;
   Material* get_material();
 
-  void set_material(Material* material)
-  {
-    m_material = material;
-  }
-  void setViewer(Viewer* viewer) {
-  	mViewer = viewer;
-  	for (ChildList::const_iterator it=m_children.begin(); it != m_children.end(); ++it) {
-  		(*it)->setViewer(viewer);
-  	}
-  	//m_primitive->setViewer(viewer);
-  }
+  void rotateJoint(float angle, int x, int y, int z, int depth);
+
+  void set_material(Material* material);
+  void setViewer(Viewer* viewer);
 
 protected:
   Material* m_material;

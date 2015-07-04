@@ -14,11 +14,4 @@ void Sphere::walk_gl(bool picking) const
 {
 	//draw();
 }
-/*
-void Sphere::draw() {
-	if (!mViewer) {
-		std::cerr << "Trying to draw a sphere but the Viewer is not set!" << std::endl;
-	} else {
-		mViewer->update();
-	}
-}*/
+

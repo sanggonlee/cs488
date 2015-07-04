@@ -5,6 +5,7 @@
 #include <cmath>
 #include <png.h>
 #include <sstream>
+#include <iostream>
 
 Image::Image()
   : m_width(0), m_height(0), m_elements(0), m_data(0)

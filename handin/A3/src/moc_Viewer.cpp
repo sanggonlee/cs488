@@ -19,8 +19,8 @@
 
 QT_BEGIN_MOC_NAMESPACE
 struct qt_meta_stringdata_Viewer_t {
-    QByteArrayData data[1];
-    char stringdata[8];
+    QByteArrayData data[14];
+    char stringdata[172];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -29,9 +29,26 @@ struct qt_meta_stringdata_Viewer_t {
     )
 static const qt_meta_stringdata_Viewer_t qt_meta_stringdata_Viewer = {
     {
-QT_MOC_LITERAL(0, 0, 6)
+QT_MOC_LITERAL(0, 0, 6),
+QT_MOC_LITERAL(1, 7, 13),
+QT_MOC_LITERAL(2, 21, 0),
+QT_MOC_LITERAL(3, 22, 13),
+QT_MOC_LITERAL(4, 36, 16),
+QT_MOC_LITERAL(5, 53, 8),
+QT_MOC_LITERAL(6, 62, 24),
+QT_MOC_LITERAL(7, 87, 11),
+QT_MOC_LITERAL(8, 99, 4),
+QT_MOC_LITERAL(9, 104, 4),
+QT_MOC_LITERAL(10, 109, 11),
+QT_MOC_LITERAL(11, 121, 12),
+QT_MOC_LITERAL(12, 134, 17),
+QT_MOC_LITERAL(13, 152, 18)
     },
-    "Viewer\0"
+    "Viewer\0requestRewalk\0\0resetPosition\0"
+    "resetOrientation\0resetAll\0"
+    "setToPositionOrientation\0setToJoints\0"
+    "undo\0redo\0setToCircle\0setToZBuffer\0"
+    "setToBackfaceCull\0setToFrontfaceCull\0"
 };
 #undef QT_MOC_LITERAL
 
@@ -41,21 +58,77 @@ static const uint qt_meta_data_Viewer[] = {
        7,       // revision
        0,       // classname
        0,    0, // classinfo
-       0,    0, // methods
+      12,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
        0,       // flags
-       0,       // signalCount
+       1,       // signalCount
+
+ // signals: name, argc, parameters, tag, flags
+       1,    0,   74,    2, 0x06,
+
+ // slots: name, argc, parameters, tag, flags
+       3,    0,   75,    2, 0x0a,
+       4,    0,   76,    2, 0x0a,
+       5,    0,   77,    2, 0x0a,
+       6,    0,   78,    2, 0x0a,
+       7,    0,   79,    2, 0x0a,
+       8,    0,   80,    2, 0x0a,
+       9,    0,   81,    2, 0x0a,
+      10,    0,   82,    2, 0x0a,
+      11,    0,   83,    2, 0x0a,
+      12,    0,   84,    2, 0x0a,
+      13,    0,   85,    2, 0x0a,
+
+ // signals: parameters
+    QMetaType::Void,
+
+ // slots: parameters
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
 
        0        // eod
 };
 
 void Viewer::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void **_a)
 {
-    Q_UNUSED(_o);
-    Q_UNUSED(_id);
-    Q_UNUSED(_c);
+    if (_c == QMetaObject::InvokeMetaMethod) {
+        Viewer *_t = static_cast<Viewer *>(_o);
+        switch (_id) {
+        case 0: _t->requestRewalk(); break;
+        case 1: _t->resetPosition(); break;
+        case 2: _t->resetOrientation(); break;
+        case 3: _t->resetAll(); break;
+        case 4: _t->setToPositionOrientation(); break;
+        case 5: _t->setToJoints(); break;
+        case 6: _t->undo(); break;
+        case 7: _t->redo(); break;
+        case 8: _t->setToCircle(); break;
+        case 9: _t->setToZBuffer(); break;
+        case 10: _t->setToBackfaceCull(); break;
+        case 11: _t->setToFrontfaceCull(); break;
+        default: ;
+        }
+    } else if (_c == QMetaObject::IndexOfMethod) {
+        int *result = reinterpret_cast<int *>(_a[0]);
+        void **func = reinterpret_cast<void **>(_a[1]);
+        {
+            typedef void (Viewer::*_t)();
+            if (*reinterpret_cast<_t *>(func) == static_cast<_t>(&Viewer::requestRewalk)) {
+                *result = 0;
+            }
+        }
+    }
     Q_UNUSED(_a);
 }
 
@@ -83,6 +156,21 @@ int Viewer::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     _id = QGLWidget::qt_metacall(_c, _id, _a);
     if (_id < 0)
         return _id;
+    if (_c == QMetaObject::InvokeMetaMethod) {
+        if (_id < 12)
+            qt_static_metacall(this, _c, _id, _a);
+        _id -= 12;
+    } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
+        if (_id < 12)
+            *reinterpret_cast<int*>(_a[0]) = -1;
+        _id -= 12;
+    }
     return _id;
+}
+
+// SIGNAL 0
+void Viewer::requestRewalk()
+{
+    QMetaObject::activate(this, &staticMetaObject, 0, 0);
 }
 QT_END_MOC_NAMESPACE

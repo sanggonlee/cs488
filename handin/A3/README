@@ -1,0 +1,19 @@
+Name: Sang kon Lee
+Student Number: 20295897
+User-id: sk5lee
+Assignment: 3
+
+The final executable was compiled on this machine: Graphics Lab machine gl10
+
+How to invoke my program: With a puppet model written in lua file, run ./puppeteer
+
+
+How to use my extra features: No extra features
+
+
+I have created the following data files, which are in the data directory: None
+
+
+My program assumes the following: Lua puppet file is in the specified format (all selectable geometry objects are always preceded by joint nodes)
+
+

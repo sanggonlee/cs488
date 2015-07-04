@@ -27,4 +27,5 @@ SOURCES += algebra.cpp \
            scene.cpp \
            scene_lua.cpp \
            AppWindow.cpp \ 
-           Viewer.cpp
+           Viewer.cpp \
+           ObjectAttribute.cpp

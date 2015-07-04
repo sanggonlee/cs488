@@ -1,0 +1,19 @@
+Name: Sang kon Lee
+Student Number: 20295897
+User-id: sk5lee
+Assignment: 4
+
+The final executable was compiled on this machine: gl10 in the Graphics Lab
+
+How to invoke my program: run "./rt <data-file>" where <data-file> is the model lua file
+
+
+How to use my extra features: As an extra feature, "Mirror reflections" was implemented. By default the program uses this functionality, but this can be disabled by passing "-nomirror" as second command line argument. Note that to do this, the file name argument must be supplied. Passing -nomirror without file name will make the program interpret "-nomirror" as the file name.
+
+
+I have created the following data files, which are in the data directory: sample.lua, sample.png, nonhier.png, macho-cows.png, simple-cows.png
+
+
+My program assumes the following: The hierarchical transformations are (partially) missing and bounding volumes were not implemented. All the lua data files should be in the same directory as the ./rt executable, including the lua files included by other lua files. The background image file is named "background.png" and also should be in the same directory as the executable.
+
+
